@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+	"target": "es2021",
+    "module": "commonjs",
+	"moduleResolution": "node",
+    "lib": ["es2021"],
+	"declaration": true,
+	"declarationMap": true,
+    "alwaysStrict": true,
+	// "emitDeclarationOnly": true,
+	"exactOptionalPropertyTypes": true,
+	"forceConsistentCasingInFileNames": true,
+	"noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+	"noImplicitReturns": true,
+	"noUncheckedIndexedAccess": true,
+	"noUnusedLocals": true,
+    "noUnusedParameters": true,
+	"strict": true,
+	"strictNullChecks": true,
+	"strictFunctionTypes": true,
+	"resolveJsonModule": true,
+	"typeRoots": [
+		"../node_modules/@types"
+	],
+	"types": [
+		"node",
+	],
+	"outDir": "src/out",
+  },
+  "extends": "@tsconfig/node18-strictest/tsconfig.json",
+}
