@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { VoiceConnection as VoiceConnectionT } from 'eris';
+import type { VoiceConnection as VoiceConnectionT, ApplicationCommandStructure } from 'eris';
 import {
 	AutocompleteInteraction, Client, Constants, CommandInteraction, ComponentInteraction, InteractionDataOptionWithValue, Member, PingInteraction, VoiceChannel, VoiceConnection,
 } from 'eris';
@@ -37,6 +37,7 @@ export default class Listeners implements listeners {
 				}
 				if (response.formats[0]) {
 					await connection.play(response.formats[0].url, {
+						// -1 Means no timeout
 						voiceDataTimeout: -1,
 					});
 				}
@@ -54,9 +55,11 @@ export default class Listeners implements listeners {
 		this.client.on('voiceChannelSwitch', this.voiceChannelSwitch);
 	}
 
-	ready() {
-		this.client.createCommand({
-			name: 'play',
+	async ready() {
+		// R means Register
+		const Rcommands = ['play', 'classical'];
+		const commandPlay: (commandName: string) => ApplicationCommandStructure = (commandName: string) => ({
+			name: commandName,
 			description: 'Plays 7/24 classical music in your voice channel.',
 			options: [{
 				name: 'Channel or Channel ID',
@@ -66,18 +69,17 @@ export default class Listeners implements listeners {
 			}],
 			type: 1,
 		});
-		this.client.createCommand({
-			name: 'classical',
-			description: 'Plays 7/24 classical music in your voice channel.',
-			options: [
-				{
-					name: 'Channel or Channel ID',
-					type: Constants.ApplicationCommandOptionTypes.INTEGER,
-					description: 'Channel or Channel ID for playing classical music.',
-					required: true,
-				},
-			],
-			type: 1,
+		const commands = await this.client.getCommands();
+		Rcommands.forEach((commandName) => {
+			let commandExist = false;
+			commands.forEach((command) => {
+				if (commandName === command.name) {
+					commandExist = true;
+				}
+			});
+			if (!commandExist) {
+				this.client.createCommand(commandPlay(commandName));
+			}
 		});
 		axios.get(`${databaseURL}/channels.json`).then((response) => {
 			if (response.data === null) {
