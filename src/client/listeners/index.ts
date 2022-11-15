@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { VoiceConnection as VoiceConnectionT } from 'eris';
+import type { ApplicationCommand, ApplicationCommandStructure, VoiceConnection as VoiceConnectionT } from 'eris';
 import {
 	AutocompleteInteraction, Client, Constants, CommandInteraction, ComponentInteraction, InteractionDataOptionWithValue, Member, PingInteraction, VoiceChannel, VoiceConnection,
 } from 'eris';
@@ -18,8 +18,11 @@ export default class Listeners implements listeners {
 		this.client = client;
 	}
 
-	static playVoice(memberCount: number, connection: VoiceConnectionT) {
+	static playVoice(memberCount: number, connection: VoiceConnectionT, channelID: string) {
 		if (memberCount > 1) {
+			axios.post(`${databaseURL}/channels.json`, {
+				channelID,
+			});
 			// Update here after finished
 			youtubeDlExec('https://www.youtube.com/watch?v=sGHgBP9-zXo', {
 				dumpSingleJson: true,
@@ -56,9 +59,9 @@ export default class Listeners implements listeners {
 	}
 
 	async ready() {
-		// R means Register
-		const Rcommands = ['play', 'classical'];
-		const commandPlay = (commandName: string) => ({
+		// P means Play
+		const Pcommands = ['play', 'classical'];
+		const commandPlay : (commandName: string) => ApplicationCommandStructure = (commandName: string) => ({
 			name: commandName,
 			description: 'Plays 7/24 classical music in your voice channel.',
 			options: [{
@@ -70,9 +73,9 @@ export default class Listeners implements listeners {
 			type: 1,
 		});
 		const commands = await this.client.getCommands();
-		Rcommands.forEach((commandName) => {
+		Pcommands.forEach((commandName: string) => {
 			let commandExist = false;
-			commands.forEach((command) => {
+			commands.forEach((command: ApplicationCommand) => {
 				if (commandName === command.name) {
 					commandExist = true;
 				}
@@ -86,10 +89,11 @@ export default class Listeners implements listeners {
 			if (response.data === null) {
 				return;
 			}
-			Object.values(response.data).forEach((channelID) => {
+			Object.keys(response.data).forEach((key) => {
+				const { channelID } = response.data[key];
 				this.client.joinVoiceChannel((channelID as string), { selfDeaf: true }).then(async (connection) => {
 					const memberCount = (await this.client.getChannel((channelID as string)) as VoiceChannel).voiceMembers.size;
-					Listeners.playVoice(memberCount, connection);
+					Listeners.playVoice(memberCount, connection, channelID);
 				}).catch((err) => console.error(err));
 			});
 		}).catch((_err) => {
@@ -101,46 +105,69 @@ export default class Listeners implements listeners {
 
 	interactionCreate(interaction: PingInteraction | CommandInteraction | ComponentInteraction | AutocompleteInteraction) {
 		if (interaction instanceof CommandInteraction) {
-			// This ifs for correcting ts. I hate you typescipt.
+			let value = '';
 			if (interaction.data) {
 				if (interaction.data.options) {
 					if (interaction.data.options[0]) {
-						if (interaction.data.name === 'play' || interaction.data.name === 'classical') {
-							const value = (interaction.data.options[0] as InteractionDataOptionWithValue).value as string;
-							const channelRegex = /<#[0-9]{18,19}>/;
-							const numberRegex = /[0-9]{18,19}/;
-							let channelID: string;
-							if (channelRegex.test(value)) {
-								const valueArr = value.split('');
-								valueArr.pop();
-								valueArr.shift();
-								valueArr.shift();
-								channelID = valueArr.join('');
-							}
-							else if (numberRegex.test(value)) {
-								channelID = value;
-							}
-							else {
-								// Log wrong input
-								return;
-							}
-							const channel = this.client.getChannel(channelID);
-							if (!(channel instanceof VoiceChannel)) {
-								return;
-							}
-							axios.post(`${databaseURL}/channels.json`, {
-								[channel.guild.id]: channelID,
-							});
-							this.client.joinVoiceChannel(channelID, { selfDeaf: true }).then(async (connection) => {
-								const memberCount = (await this.client.getChannel(channelID) as VoiceChannel).voiceMembers.size;
-								Listeners.playVoice(memberCount, connection);
-							}).catch((err) => console.error(err));
-						}
-						else {
-							// log
-						}
+						value = (interaction.data.options[0] as InteractionDataOptionWithValue).value as string;
 					}
 				}
+			}
+			if (interaction.data.name === 'play' || interaction.data.name === 'classical') {
+				let channelID: string;
+				if (value !== '') {
+					const channelRegex = /<#[0-9]{18,19}>/;
+					const numberRegex = /[0-9]{18,19}/;
+					if (channelRegex.test(value)) {
+						const valueArr = value.split('');
+						valueArr.pop();
+						valueArr.shift();
+						valueArr.shift();
+						channelID = valueArr.join('');
+					}
+					else if (numberRegex.test(value)) {
+						channelID = value;
+					}
+					else {
+						// log and message
+						return;
+					}
+				}
+				else if (interaction.member) {
+					if (interaction.member.voiceState !== undefined) {
+						if (interaction.member.voiceState.channelID !== null) {
+							channelID = interaction.member.voiceState.channelID;
+						}
+						else {
+							// log and message
+							return;
+						}
+					}
+					else {
+						// log and message
+						return;
+					}
+				}
+				else {
+					// log and message
+					return;
+				}
+
+				const channel = this.client.getChannel(channelID);
+				if (!(channel instanceof VoiceChannel)) {
+					// log and message
+					return;
+				}
+				axios.post(`${databaseURL}/channels.json`, {
+					channelID,
+				});
+				this.client.joinVoiceChannel(channelID, { selfDeaf: true }).then(async (connection) => {
+					const memberCount = (await this.client.getChannel(channelID) as VoiceChannel).voiceMembers.size;
+					Listeners.playVoice(memberCount, connection, channelID);
+				}).catch((err) => console.error(err));
+			}
+			else {
+				// log
 			}
 		}
 	}
@@ -151,7 +178,7 @@ export default class Listeners implements listeners {
 		}
 		const connection = await this.client.voiceConnections.find((connect: VoiceConnection) => connect.channelID === channel.id);
 		if (connection) {
-			Listeners.playVoice(channel.voiceMembers.size, connection);
+			Listeners.playVoice(channel.voiceMembers.size, connection, channel.id);
 		}
 		else {
 			// log
@@ -180,6 +207,6 @@ export default class Listeners implements listeners {
 			await connection.stopPlaying();
 			return;
 		}
-		Listeners.playVoice(channel.voiceMembers.size, connection);
+		Listeners.playVoice(channel.voiceMembers.size, connection, channel.id);
 	}
 }
