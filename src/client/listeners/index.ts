@@ -158,8 +158,24 @@ export default class Listeners implements listeners {
 					// log and message
 					return;
 				}
+				axios.get(`${databaseURL}/channels.json`).then((response) => {
+					if (response.data === null) {
+						return;
+					}
+					// Checking for if the guild cached before.
+					Object.keys(response.data).forEach((key) => {
+						const cachedChannel = this.client.getChannel(response.data[key].channelID) as VoiceChannel;
+						if (cachedChannel.guild.id === channel.guild.id) {
+							axios.delete(`${databaseURL}/channels/${key}.json`);
+						}
+					});
+				}).catch((_err) => {
+					// log
+				});
 				axios.post(`${databaseURL}/channels.json`, {
 					channelID,
+				}).catch((_err) => {
+					// log
 				});
 				this.client.joinVoiceChannel(channelID, { selfDeaf: true }).then(async (connection) => {
 					const memberCount = (await this.client.getChannel(channelID) as VoiceChannel).voiceMembers.size;
