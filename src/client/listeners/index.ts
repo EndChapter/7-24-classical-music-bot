@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { VoiceConnection as VoiceConnectionT, ApplicationCommandStructure } from 'eris';
+import type { VoiceConnection as VoiceConnectionT } from 'eris';
 import {
 	AutocompleteInteraction, Client, Constants, CommandInteraction, ComponentInteraction, InteractionDataOptionWithValue, Member, PingInteraction, VoiceChannel, VoiceConnection,
 } from 'eris';
@@ -58,7 +58,7 @@ export default class Listeners implements listeners {
 	async ready() {
 		// R means Register
 		const Rcommands = ['play', 'classical'];
-		const commandPlay: (commandName: string) => ApplicationCommandStructure = (commandName: string) => ({
+		const commandPlay = (commandName: string) => ({
 			name: commandName,
 			description: 'Plays 7/24 classical music in your voice channel.',
 			options: [{
@@ -101,6 +101,7 @@ export default class Listeners implements listeners {
 
 	interactionCreate(interaction: PingInteraction | CommandInteraction | ComponentInteraction | AutocompleteInteraction) {
 		if (interaction instanceof CommandInteraction) {
+			// This ifs for correcting ts. I hate you typescipt.
 			if (interaction.data) {
 				if (interaction.data.options) {
 					if (interaction.data.options[0]) {
