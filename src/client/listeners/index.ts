@@ -5,7 +5,7 @@ import {
 } from 'eris';
 import youtubeDlExec from 'youtube-dl-exec';
 import { databaseURL } from '../../../config';
-import { listeners } from '../interfaces/listeners.if';
+import type { listeners } from '../interfaces/listeners.if';
 
 // !
 // IMPORTANT: Add cache for reloading links
