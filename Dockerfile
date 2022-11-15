@@ -16,7 +16,7 @@ libsodium \
 automake \
 icu-data-full
 
-WORKDIR "/opt/aoshima-bot"
+WORKDIR "/opt/classical-music-bot"
 COPY . .
 RUN npm i --omit=dev
 
