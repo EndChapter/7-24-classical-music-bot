@@ -65,7 +65,7 @@ export default class Listeners implements listeners {
 				name: 'Channel or Channel ID',
 				type: Constants.ApplicationCommandOptionTypes.STRING,
 				description: 'Channel or Channel ID for playing classical music.',
-				required: true,
+				required: false,
 			}],
 			type: 1,
 		});
@@ -81,7 +81,7 @@ export default class Listeners implements listeners {
 				this.client.createCommand(commandPlay(commandName));
 			}
 		});
-		// This is for the cases that bot resets itself(and it means all cache gone so I need get cache from somewhere.).
+		// This is for the cases that bot resets itself.(and it means all cache gone so I need get cache from somewhere.)(and yes it happens a lot.)
 		axios.get(`${databaseURL}/channels.json`).then((response) => {
 			if (response.data === null) {
 				return;
