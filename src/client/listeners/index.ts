@@ -81,6 +81,7 @@ export default class Listeners implements listeners {
 				this.client.createCommand(commandPlay(commandName));
 			}
 		});
+		// This is for the cases that bot resets itself(and it means all cache gone so I need get cache from somewhere.).
 		axios.get(`${databaseURL}/channels.json`).then((response) => {
 			if (response.data === null) {
 				return;
