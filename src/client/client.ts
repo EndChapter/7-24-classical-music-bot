@@ -44,7 +44,7 @@ export default class Client implements clientIF {
 				MESSAGE_DELETE_BULK: true,
 				MESSAGE_UPDATE: true,
 				PRESENCE_UPDATE: true,
-				TYPING_STAallNonPrivilegedRT: true,
+				TYPING_START: true,
 				USER_UPDATE: true,
 				// VOICE_STATE_UPDATE: true,
 			},
