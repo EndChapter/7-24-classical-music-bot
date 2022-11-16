@@ -8,10 +8,6 @@ import youtubeDlExec from 'youtube-dl-exec';
 import type { listeners } from './interfaces/listeners.if';
 import { bottok, databaseURL } from '../../config';
 
-// !
-// IMPORTANT: Add cache for reloading links
-// !
-// TODO fix channels cache.
 export default class Client implements listeners {
 	client: _Client;
 
@@ -92,10 +88,10 @@ export default class Client implements listeners {
 		};
 		// Initialize voice
 
-		const threeMinutes = 180000;
-		const thirstyMinutes = 1800000;
 		// In every 45 minutes. Live link become expired. So I will avoid with that.
 		// TODO: Change link 1 time apply every check.
+		const threeMinutes = 180000;
+		const thirstyMinutes = 1800000;
 		setInterval(() => {
 			(this as unknown as _Client).voiceConnections.forEach((connection: VoiceConnection) => {
 				axios.get(`${databaseURL}/activeConnections.json`).then((response) => {
@@ -112,9 +108,6 @@ export default class Client implements listeners {
 				});
 			});
 		}, threeMinutes);
-
-		// Initialize voice
-
 		const commands = await (this as unknown as _Client).getCommands();
 		commandNames.forEach((commandName: string) => {
 			let commandExist = false;
@@ -214,10 +207,6 @@ export default class Client implements listeners {
 						return;
 					}
 					Object.keys(response.data).forEach((key) => {
-						// !
-						// IMPORTANT: Add cache for reloading links
-						// !
-						// TODO fix channels cache.
 						const cachedChannel = (this as unknown as _Client).getChannel(response.data[key].channelID) as VoiceChannel;
 						if (cachedChannel.guild.id === channel.guild.id) {
 							axios.delete(`${databaseURL}/channels/${key}.json`);
@@ -313,21 +302,15 @@ export default class Client implements listeners {
 			allowedMentions: {
 				everyone: false,
 			},
-			// ! Edit intents after finished bot.
 			intents: ['allNonPrivileged', 'guildMembers'],
-			// I dont want to cache offline people(or any people). Thus..
 			largeThreshold: 0,
 			maxResumeAttempts: 1000,
-			// requestTimeout: 30000,
-			// restMode: true
 			disableEvents: {
 				CHANNEL_CREATE: true,
 				CHANNEL_DELETE: true,
 				CHANNEL_UPDATE: true,
 				GUILD_BAN_ADD: true,
 				GUILD_BAN_REMOVE: true,
-				// GUILD_CREATE: true,
-				// GUILD_DELETE: true,
 				GUILD_MEMBER_ADD: true,
 				GUILD_MEMBER_REMOVE: true,
 				GUILD_MEMBER_UPDATE: true,
@@ -335,14 +318,12 @@ export default class Client implements listeners {
 				GUILD_ROLE_DELETE: true,
 				GUILD_ROLE_UPDATE: true,
 				GUILD_UPDATE: true,
-				// MESSAGE_CREATE: true,
 				MESSAGE_DELETE: true,
 				MESSAGE_DELETE_BULK: true,
 				MESSAGE_UPDATE: true,
 				PRESENCE_UPDATE: true,
 				TYPING_START: true,
 				USER_UPDATE: true,
-				// VOICE_STATE_UPDATE: true,
 			},
 			seedVoiceConnections: true,
 		});
