@@ -10,7 +10,7 @@ import type { listeners } from '../interfaces/listeners.if';
 // !
 // IMPORTANT: Add cache for reloading links
 // !
-
+// TODO fix channels cache.
 export default class Listeners implements listeners {
 	client: Client;
 
@@ -19,34 +19,55 @@ export default class Listeners implements listeners {
 	}
 
 	static playVoice(memberCount: number, connection: VoiceConnectionT, channelID: string) {
+		let activeVoiceChannel = false;
+		let privateKey = '';
+		axios.get(`${databaseURL}/activeConnections.json`).then((response) => {
+			if (response.data !== null) {
+				Object.keys(response.data).forEach((key) => {
+					const cachedChannelID = response.data[key].channelID;
+					if (cachedChannelID === channelID) {
+						activeVoiceChannel = true;
+						privateKey = key;
+					}
+				});
+			}
+		}).catch((_err) => {
+			// log
+		});
 		if (memberCount > 1) {
-			axios.post(`${databaseURL}/channels.json`, {
-				channelID,
-			});
 			// Update here after finished
-			youtubeDlExec('https://www.youtube.com/watch?v=sGHgBP9-zXo', {
-				dumpSingleJson: true,
-				noCheckCertificates: true,
-				noWarnings: true,
-				preferFreeFormats: true,
-				audioFormat: 'mp3',
-				addHeader: [
-					'referer:youtube.com',
-					'user-agent:googlebot',
-				],
-			}).then(async (response) => {
-				if (connection.playing) {
-					await connection.stopPlaying();
-				}
-				if (response.formats[0]) {
-					await connection.play(response.formats[0].url, {
+			if (!activeVoiceChannel) {
+				axios.post(`${databaseURL}/activeConnections.json`, {
+					channelID,
+					timestamp: Date.now(),
+				});
+				youtubeDlExec('https://www.youtube.com/watch?v=sGHgBP9-zXo', {
+					dumpSingleJson: true,
+					noCheckCertificates: true,
+					noWarnings: true,
+					preferFreeFormats: true,
+					audioFormat: 'mp3',
+					addHeader: [
+						'referer:youtube.com',
+						'user-agent:googlebot',
+					],
+				}).then(async (response) => {
+					if (connection.playing) {
+						await connection.stopPlaying();
+					}
+					if (response.formats[0]) {
+						await connection.play(response.formats[0].url, {
 						// -1 Means no timeout
-						voiceDataTimeout: -1,
-					});
-				}
-			}).catch((_err) => {
+							voiceDataTimeout: -1,
+						});
+					}
+				}).catch((_err) => {
 				// Log
-			});
+				});
+			}
+		}
+		else if (activeVoiceChannel) {
+			axios.delete(`${databaseURL}/activeConnections/${privateKey}.json`);
 		}
 	}
 
@@ -56,11 +77,35 @@ export default class Listeners implements listeners {
 		this.client.on('voiceChannelJoin', this.voiceChannelJoin);
 		this.client.on('voiceChannelLeave', this.voiceChannelLeave);
 		this.client.on('voiceChannelSwitch', this.voiceChannelSwitch);
+		this.initializeVoice();
+	}
+
+	initializeVoice() {
+		const threeMinutes = 180000;
+		const thirstyMinutes = 1800000;
+		// In every 45 minutes. Live link become expired. So I will avoid with that.
+		// TODO: Change link 1 time apply every check.
+		setInterval(() => {
+			this.client.voiceConnections.forEach((connection: VoiceConnection) => {
+				axios.get(`${databaseURL}/activeConnections.json`).then((response) => {
+					if (response.data !== null) {
+						Object.keys(response.data).forEach((key) => {
+							if (Date.now() - thirstyMinutes > response.data[key].timestamp) {
+								const cachedChannel = this.client.getChannel(response.data[key].channelID) as VoiceChannel;
+								Listeners.playVoice(cachedChannel.voiceMembers.size, connection, response.data[key].channelID);
+							}
+						});
+					}
+				}).catch((_err) => {
+					// log
+				});
+			});
+		}, threeMinutes);
 	}
 
 	async ready() {
 		// P means Play
-		const Pcommands = ['play', 'classical'];
+		const commandNames = ['play', 'classical', 'stop'];
 		const commandPlay : (commandName: string) => ApplicationCommandStructure = (commandName: string) => ({
 			name: commandName,
 			description: 'Plays 7/24 classical music in your voice channel.',
@@ -72,8 +117,13 @@ export default class Listeners implements listeners {
 			}],
 			type: 1,
 		});
+		const commandStop: ApplicationCommandStructure = {
+			name: 'stop',
+			description: 'Stops the music.',
+			type: 1,
+		};
 		const commands = await this.client.getCommands();
-		Pcommands.forEach((commandName: string) => {
+		commandNames.forEach((commandName: string) => {
 			let commandExist = false;
 			commands.forEach((command: ApplicationCommand) => {
 				if (commandName === command.name) {
@@ -81,7 +131,12 @@ export default class Listeners implements listeners {
 				}
 			});
 			if (!commandExist) {
-				this.client.createCommand(commandPlay(commandName));
+				if (commandName === 'stop') {
+					this.client.createCommand(commandPlay(commandName));
+				}
+				else {
+					this.client.createCommand(commandStop);
+				}
 			}
 		});
 		// This is for the cases that bot resets itself.(and it means all cache gone so I need get cache from somewhere.)(and yes it happens a lot.)
@@ -114,6 +169,7 @@ export default class Listeners implements listeners {
 				}
 			}
 			if (interaction.data.name === 'play' || interaction.data.name === 'classical') {
+				let guildID: string;
 				let channelID: string;
 				if (value !== '') {
 					const channelRegex = /<#[0-9]{18,19}>/;
@@ -137,6 +193,7 @@ export default class Listeners implements listeners {
 					if (interaction.member.voiceState !== undefined) {
 						if (interaction.member.voiceState.channelID !== null) {
 							channelID = interaction.member.voiceState.channelID;
+							guildID = interaction.member.guild.id;
 						}
 						else {
 							// log and message
@@ -158,12 +215,16 @@ export default class Listeners implements listeners {
 					// log and message
 					return;
 				}
+				// Checking for if the guild cached before.
 				axios.get(`${databaseURL}/channels.json`).then((response) => {
 					if (response.data === null) {
 						return;
 					}
-					// Checking for if the guild cached before.
 					Object.keys(response.data).forEach((key) => {
+						// !
+						// IMPORTANT: Add cache for reloading links
+						// !
+						// TODO fix channels cache.
 						const cachedChannel = this.client.getChannel(response.data[key].channelID) as VoiceChannel;
 						if (cachedChannel.guild.id === channel.guild.id) {
 							axios.delete(`${databaseURL}/channels/${key}.json`);
@@ -174,13 +235,35 @@ export default class Listeners implements listeners {
 				});
 				axios.post(`${databaseURL}/channels.json`, {
 					channelID,
-				}).catch((_err) => {
-					// log
+					// guildID,
 				});
 				this.client.joinVoiceChannel(channelID, { selfDeaf: true }).then(async (connection) => {
 					const memberCount = (await this.client.getChannel(channelID) as VoiceChannel).voiceMembers.size;
 					Listeners.playVoice(memberCount, connection, channelID);
 				}).catch((err) => console.error(err));
+			}
+			else if (interaction.data.name === 'stop') {
+				if (interaction.member) {
+					const guildID = interaction.member.guild.id;
+					axios.get(`${databaseURL}/channels.json`).then((response) => {
+						if (response.data === null) {
+							// Probably there is a error somewhere log this.
+							return;
+						}
+						Object.keys(response.data).forEach((key) => {
+							if (guildID === response.data[key].guildID) {
+								const connection = this.client.voiceConnections.get(response.data[key].guildID);
+								if (connection) {
+									connection.stopPlaying();
+									connection.disconnect();
+								}
+								axios.delete(`${databaseURL}/channels/${key}.json`);
+							}
+						});
+					}).catch((_err) => {
+						// log
+					});
+				}
 			}
 			else {
 				// log
@@ -189,40 +272,23 @@ export default class Listeners implements listeners {
 	}
 
 	async voiceChannelJoin(_member: Member, channel: VoiceChannel) {
-		if (channel.voiceMembers.size < 1) {
-			return;
-		}
 		const connection = await this.client.voiceConnections.find((connect: VoiceConnection) => connect.channelID === channel.id);
 		if (connection) {
 			Listeners.playVoice(channel.voiceMembers.size, connection, channel.id);
 		}
-		else {
-			// log
-		}
 	}
 
 	async voiceChannelLeave(_member: Member, channel: VoiceChannel) {
-		if (channel.voiceMembers.size > 1) {
-			return;
-		}
 		const connection = await this.client.voiceConnections.find((connect: VoiceConnection) => connect.channelID === channel.id);
 		if (connection) {
-			await connection.stopPlaying();
-		}
-		else {
-			// log
+			Listeners.playVoice(channel.voiceMembers.size, connection, channel.id);
 		}
 	}
 
 	async voiceChannelSwitch(_member: Member, channel: VoiceChannel) {
 		const connection = await this.client.voiceConnections.find((connect: VoiceConnection) => connect.channelID === channel.id);
-		if (!connection) {
-			return;
+		if (connection) {
+			Listeners.playVoice(channel.voiceMembers.size, connection, channel.id);
 		}
-		if (channel.voiceMembers.size < 1) {
-			await connection.stopPlaying();
-			return;
-		}
-		Listeners.playVoice(channel.voiceMembers.size, connection, channel.id);
 	}
 }
