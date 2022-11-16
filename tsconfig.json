@@ -26,7 +26,7 @@
 	"types": [
 		"node",
 	],
-	"outDir": "src/out",
+	"outDir": "out",
   },
   "extends": "@tsconfig/node18-strictest/tsconfig.json",
 }
