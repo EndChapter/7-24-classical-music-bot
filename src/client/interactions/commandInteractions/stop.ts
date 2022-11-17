@@ -12,7 +12,7 @@ export default async (interaction: CommandInteraction) => {
 		const guildID = interaction.member.guild.id;
 		const activeChannels = await getActiveChannels();
 		activeChannels.forEach(async (activeChannel) => {
-			if (guildID === activeChannel.guildID){
+			if (guildID === activeChannel.guildID) {
 				const connection = client.voiceConnections.get(guildID);
 				if (connection) {
 					connection.stopPlaying();

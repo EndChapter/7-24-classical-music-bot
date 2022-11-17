@@ -23,7 +23,7 @@ export default async (interaction: CommandInteraction) => {
 	}
 	if (value !== '') {
 		channelID = channelRegex(value);
-		if (channelID = '') {
+		if (channelID === '') {
 			// log and message
 			return;
 		}
