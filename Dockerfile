@@ -18,6 +18,7 @@ icu-data-full
 
 WORKDIR "/opt/classical-music-bot"
 COPY . .
-RUN npm i --omit=dev
+RUN npm install
+RUN npx tsc
 
 CMD ["node", "out/src/index.js"]
