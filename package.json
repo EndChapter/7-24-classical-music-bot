@@ -12,8 +12,9 @@
     "axios": "^0.27.2",
     "dotenv": "^16.0.3",
     "eris": "^0.17.1",
+    "sodium-native": "3.2",
     "winston": "^3.8.2",
-    "youtube-dl-exec": "^2.1.5"
+    "youtube-dl-exec": "^2.1.8"
   },
   "devDependencies": {
     "@tsconfig/node18-strictest": "^1.0.0",

@@ -1,21 +1,22 @@
 import axios from 'axios';
 import { databaseURL } from '../../../../config';
-import type { activeConnections as activeConnectionsT } from '../../interfaces/activeConnections.if';
+import type { activeConnection } from '../../interfaces/activeConnection.if';
 import logCatch from '../misc/logCatch';
 
-export default () => {
-	axios.get(`${databaseURL}/activeConnections.json`).then((response) => {
+export default async () => {
+	const activeConnections: activeConnection = [];
+	await axios.get(`${databaseURL}/activeConnections.json`).then((response) => {
 		if (response.data !== null) {
-			const activeConnections: activeConnectionsT = [];
 			Object.keys(response.data).forEach((key) => {
 				activeConnections.push({
 					channelID: response.data[key].channelID,
+					timestamp: response.data[key].timestamp,
 					privateKey: key,
 				});
 			});
 			return activeConnections;
 		}
-		return [] as activeConnectionsT;
+		return activeConnections;
 	}).catch(logCatch);
-	return [] as activeConnectionsT;
+	return activeConnections;
 };

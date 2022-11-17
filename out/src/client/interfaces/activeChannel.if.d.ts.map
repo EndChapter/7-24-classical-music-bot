@@ -1,0 +1,1 @@
+{"version":3,"file":"activeChannel.if.d.ts","sourceRoot":"","sources":["../../../../src/client/interfaces/activeChannel.if.ts"],"names":[],"mappings":"AAAA,MAAM,MAAM,aAAa,GAAG;IAC3B,SAAS,EAAE,MAAM,CAAC;IAClB,OAAO,EAAE,MAAM,CAAC;IAChB,UAAU,EAAE,MAAM,CAAA;CAClB,EAAE,CAAC"}

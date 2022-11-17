@@ -1,2 +1,2 @@
 # 7-24-classical-music-bot
-My bot for stupid discord badge(It is still not works properly though. I am going to sleep. I will finish when I became asleep.)
+My bot for stupid discord badge(It is works now! Just need some improvements but its already really good.)

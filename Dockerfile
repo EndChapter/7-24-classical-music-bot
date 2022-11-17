@@ -20,4 +20,4 @@ WORKDIR "/opt/classical-music-bot"
 COPY . .
 RUN npm i --omit=dev
 
-CMD ["node", "src/out/index.js"]
+CMD ["node", "out/src/index.js"]

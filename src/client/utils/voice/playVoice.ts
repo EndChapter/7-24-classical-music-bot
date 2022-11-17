@@ -1,27 +1,36 @@
 import type { VoiceConnection } from 'eris';
-import type { activeConnections } from '../../interfaces/activeConnections.if';
 import deleteActiveConnection from '../activeConnection/deleteActiveConnection';
 import getActiveConnections from '../activeConnection/getActiveConnections';
 import postActiveConnections from '../activeConnection/postActiveConnections';
-import playMusic from './playMusic';
+import getMusicUrl from './getMusicUrl';
 
-export default (memberCount: number, connection: VoiceConnection, channelID: string) => {
+export default async (memberCount: number, connection: VoiceConnection, channelID: string, justJoined: boolean) => {
 	let activeVoiceChannel = false;
 	let privateKey = '';
-	const cachedChannels: activeConnections = getActiveConnections();
+	const cachedChannels = await getActiveConnections();
 	cachedChannels.forEach((activeConnection) => {
 		if (activeConnection.channelID === channelID) {
 			activeVoiceChannel = true;
 			privateKey = activeConnection.privateKey;
 		}
 	});
-	if (memberCount > 1) {
-		if (!activeVoiceChannel) {
-			postActiveConnections(channelID);
-			playMusic(connection);
+	if (memberCount > 1 || (justJoined && memberCount === 1)) {
+		if (activeVoiceChannel) {
+			deleteActiveConnection(privateKey);
+		}
+		postActiveConnections(channelID);
+		const musicUrl = await getMusicUrl();
+		if (connection.playing) {
+			await connection.stopPlaying();
+		}
+		if (musicUrl !== '') {
+			await connection.play(musicUrl);
+		}
+		else {
+			console.log('ERROR: Error while getting music url');
 		}
 	}
-	else if (!activeVoiceChannel) {
+	else {
 		deleteActiveConnection(privateKey);
 	}
 };
