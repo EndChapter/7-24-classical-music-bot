@@ -4,8 +4,8 @@ import Client from '../../client';
 
 export default async () => {
 	const { client } = Client;
-	registerCommands();
-	initializeVoice();
+	await registerCommands();
+	await initializeVoice();
 
 	const Guilds = client.guilds.map((guildd) => guildd.name);
 	console.log(`INFO: Connected \`[${Guilds.join(', ')}]\` guilds!`);

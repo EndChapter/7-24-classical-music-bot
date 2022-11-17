@@ -40,7 +40,7 @@ export default class Client {
 			},
 			seedVoiceConnections: true,
 		});
-		Client._client.once('ready', ready);
+		Client.client.once('ready', ready);
 		Client.client.on('interactionCreate', interactionCreate);
 		Client.client.on('voiceChannelJoin', sendConnection);
 		Client.client.on('voiceChannelLeave', sendConnection);

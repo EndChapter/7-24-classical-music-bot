@@ -67,10 +67,10 @@ export default async (interaction: CommandInteraction) => {
 	let channelFound = false;
 	// Checking for if the guild cached before.
 	const channels = await getActiveChannels();
-	channels.forEach((activeChannel) => {
+	channels.forEach(async (activeChannel) => {
 		if (activeChannel.guildID === guildID) {
 			if (activeChannel.channelID === channelID) {
-				interaction.createMessage({
+				await interaction.createMessage({
 					embeds: [{
 						description: '・ **You\'re already using the bot in the same channel.**🤠',
 						color: randomColor(),
@@ -85,19 +85,19 @@ export default async (interaction: CommandInteraction) => {
 				channelFound = true;
 				return;
 			}
-			axios.delete(`${databaseURL}/channels/${activeChannel.privateKey}.json`);
+			await axios.delete(`${databaseURL}/channels/${activeChannel.privateKey}.json`);
 		}
 	});
 	if (!channelFound) {
-		axios.post(`${databaseURL}/channels.json`, {
+		await axios.post(`${databaseURL}/channels.json`, {
 			channelID,
 			guildID,
 		});
-		client.joinVoiceChannel(channelID, { selfDeaf: true }).then(async (connection) => {
-			const memberCount = (client.getChannel(channelID) as VoiceChannel).voiceMembers.size;
-			playVoice(memberCount, connection, channelID, true);
+		await client.joinVoiceChannel(channelID, { selfDeaf: true }).then(async (connection) => {
+			const memberCount = (await client.getChannel(channelID) as VoiceChannel).voiceMembers.size;
+			await playVoice(memberCount, connection, channelID, true);
 		}).catch(logCatch);
-		interaction.createMessage({
+		await interaction.createMessage({
 			embeds: [{
 				description: '・ **Thanks for using classical bot.** ❤️',
 				color: randomColor(),

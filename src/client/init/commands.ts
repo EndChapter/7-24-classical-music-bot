@@ -7,7 +7,7 @@ export default async () => {
 	const { client } = Client;
 	const commandNames = ['play', 'classical', 'stop'];
 	const commands = await client.getCommands();
-	commandNames.forEach((commandName: string) => {
+	commandNames.forEach(async (commandName: string) => {
 		let commandExist = false;
 		commands.forEach((command: ApplicationCommand) => {
 			if (commandName === command.name) {
@@ -16,10 +16,10 @@ export default async () => {
 		});
 		if (!commandExist) {
 			if (commandName !== 'stop') {
-				client.createCommand(play(commandName));
+				await client.createCommand(play(commandName));
 			}
 			else {
-				client.createCommand(stop);
+				await client.createCommand(stop);
 			}
 		}
 	});

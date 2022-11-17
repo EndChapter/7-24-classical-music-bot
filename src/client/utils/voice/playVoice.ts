@@ -16,9 +16,9 @@ export default async (memberCount: number, connection: VoiceConnection, channelI
 	});
 	if (memberCount > 1 || (justJoined && memberCount === 1)) {
 		if (activeVoiceChannel) {
-			deleteActiveConnection(privateKey);
+			await deleteActiveConnection(privateKey);
 		}
-		postActiveConnections(channelID);
+		await postActiveConnections(channelID);
 		const musicUrl = await getMusicUrl();
 		if (connection.playing) {
 			await connection.stopPlaying();
@@ -31,6 +31,6 @@ export default async (memberCount: number, connection: VoiceConnection, channelI
 		}
 	}
 	else {
-		deleteActiveConnection(privateKey);
+		await deleteActiveConnection(privateKey);
 	}
 };

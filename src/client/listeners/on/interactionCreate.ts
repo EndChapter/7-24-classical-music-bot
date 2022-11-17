@@ -4,13 +4,13 @@ import {
 import stopInteraction from '../../interactions/commandInteractions/stop';
 import playInteraction from '../../interactions/commandInteractions/play';
 
-export default (interaction: Interaction) => {
+export default async (interaction: Interaction) => {
 	if (interaction instanceof CommandInteraction) {
 		if (interaction.data.name === 'play' || interaction.data.name === 'classical') {
-			playInteraction(interaction);
+			await playInteraction(interaction);
 		}
 		else if (interaction.data.name === 'stop') {
-			stopInteraction(interaction);
+			await stopInteraction(interaction);
 		}
 		else {
 			console.log('INFO: Unknown command called: ', interaction.data.name);

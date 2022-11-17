@@ -16,13 +16,13 @@ export default async () => {
 	setInterval(() => {
 		client.voiceConnections.forEach(async (connection: VoiceConnection) => {
 			const activeConnections = await getActiveConnections();
-			activeConnections.forEach((activeConnection) => {
+			activeConnections.forEach(async (activeConnection) => {
 				if (Date.now() - thirstyMinutes > activeConnection.timestamp) {
 					const cachedChannel = client.getChannel(activeConnection.channelID) as VoiceChannel;
-					playVoice(cachedChannel.voiceMembers.size, connection, activeConnection.channelID, false);
+					await playVoice(cachedChannel.voiceMembers.size, connection, activeConnection.channelID, false);
 					// For sending new timestamp :p
-					deleteActiveConnection(activeConnection.privateKey);
-					postActiveConnections(activeConnection.channelID);
+					await deleteActiveConnection(activeConnection.privateKey);
+					await postActiveConnections(activeConnection.channelID);
 				}
 			});
 		});
