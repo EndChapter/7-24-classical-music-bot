@@ -85,6 +85,7 @@ export default async (interaction: CommandInteraction) => {
 				channelFound = true;
 				return;
 			}
+			await deleteac
 			await axios.delete(`${databaseURL}/channels/${activeChannel.privateKey}.json`);
 		}
 	});
