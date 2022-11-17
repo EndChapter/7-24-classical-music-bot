@@ -5,8 +5,4 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 import Client from './client/client';
 
-function main() {
-	const client = new Client();
-	client.connect();
-}
-main();
+Client.init();
