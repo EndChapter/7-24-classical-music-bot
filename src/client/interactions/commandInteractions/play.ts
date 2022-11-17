@@ -1,10 +1,11 @@
-import axios from 'axios';
 import { CommandInteraction, InteractionDataOptionsWithValue, VoiceChannel } from 'eris';
-import { databaseURL } from '../../../../config';
 import Client from '../../client';
+import deleteActiveChannel from '../../utils/activeChannel/deleteActiveChannel';
 import getActiveChannels from '../../utils/activeChannel/getActiveChannels';
+import postActiveChannel from '../../utils/activeChannel/postActiveChannel';
+import channelRegex from '../../utils/misc/channelRegex';
+import getEmbed from '../../utils/misc/getEmbed';
 import logCatch from '../../utils/misc/logCatch';
-import randomColor from '../../utils/misc/randomColor';
 import playVoice from '../../utils/voice/playVoice';
 
 // Needs Revision
@@ -21,19 +22,8 @@ export default async (interaction: CommandInteraction) => {
 		}
 	}
 	if (value !== '') {
-		const channelRegex = /<#[0-9]{18,19}>/;
-		const numberRegex = /[0-9]{18,19}/;
-		if (channelRegex.test(value)) {
-			const valueArr = value.split('');
-			valueArr.pop();
-			valueArr.shift();
-			valueArr.shift();
-			channelID = valueArr.join('');
-		}
-		else if (numberRegex.test(value)) {
-			channelID = value;
-		}
-		else {
+		channelID = channelRegex(value);
+		if (channelID = '') {
 			// log and message
 			return;
 		}
@@ -70,45 +60,19 @@ export default async (interaction: CommandInteraction) => {
 	channels.forEach(async (activeChannel) => {
 		if (activeChannel.guildID === guildID) {
 			if (activeChannel.channelID === channelID) {
-				await interaction.createMessage({
-					embeds: [{
-						description: '・ **You\'re already using the bot in the same channel.**🤠',
-						color: randomColor(),
-						timestamp: (new Date()).toISOString(),
-						footer: {
-							text: '7/24 Classical Music Bot',
-							icon_url: client.user.staticAvatarURL,
-						},
-					}],
-					flags: 64,
-				});
+				await interaction.createMessage(getEmbed('Play', '・ **You\'re already using the bot in the same channel.**🤠', client.user.staticAvatarURL));
 				channelFound = true;
 				return;
 			}
-			await deleteac
-			await axios.delete(`${databaseURL}/channels/${activeChannel.privateKey}.json`);
+			await deleteActiveChannel(activeChannel.privateKey);
 		}
 	});
 	if (!channelFound) {
-		await axios.post(`${databaseURL}/channels.json`, {
-			channelID,
-			guildID,
-		});
+		await postActiveChannel(channelID, guildID);
 		await client.joinVoiceChannel(channelID, { selfDeaf: true }).then(async (connection) => {
 			const memberCount = (await client.getChannel(channelID) as VoiceChannel).voiceMembers.size;
 			await playVoice(memberCount, connection, channelID, true);
 		}).catch(logCatch);
-		await interaction.createMessage({
-			embeds: [{
-				description: '・ **Thanks for using classical bot.** ❤️',
-				color: randomColor(),
-				timestamp: (new Date()).toISOString(),
-				footer: {
-					text: '7/24 Classical Music Bot',
-					icon_url: client.user.staticAvatarURL,
-				},
-			}],
-			flags: 64,
-		});
+		await interaction.createMessage(getEmbed('Play', '・ **Thanks for using classical bot.** ❤️', client.user.staticAvatarURL));
 	}
 };

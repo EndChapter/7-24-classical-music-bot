@@ -1,42 +1,32 @@
-import axios from 'axios';
 import type { CommandInteraction } from 'eris';
-import { databaseURL } from '../../../../config';
 import Client from '../../client';
-import logCatch from '../../utils/misc/logCatch';
+import deleteActiveChannel from '../../utils/activeChannel/deleteActiveChannel';
+import getActiveChannels from '../../utils/activeChannel/getActiveChannels';
+import deleteActiveConnection from '../../utils/activeConnection/deleteActiveConnection';
+import getActiveConnections from '../../utils/activeConnection/getActiveConnections';
+import getEmbed from '../../utils/misc/getEmbed';
 
-// Needs revision
 export default async (interaction: CommandInteraction) => {
 	const { client } = Client;
 	if (interaction.member) {
 		const guildID = interaction.member.guild.id;
-		await axios.get(`${databaseURL}/channels.json`).then((response) => {
-			if (response.data === null) {
-				// Probably there is a error somewhere log this.
-				return;
-			}
-			Object.keys(response.data).forEach(async (key) => {
-				if (guildID === response.data[key].guildID) {
-					const connection = client.voiceConnections.get(response.data[key].guildID);
-					if (connection) {
-						connection.stopPlaying();
-						connection.disconnect();
-					}
-					await axios.delete(`${databaseURL}/channels/${key}.json`);
-					await axios.get(`${databaseURL}/activeConnections.json`).then((rs) => {
-						if (rs.data !== null) {
-							Object.keys(rs.data).forEach(async (rsKey) => {
-								if (rs.data[rsKey].channelID === response.data[key].channelID) {
-									await axios.delete(`${databaseURL}/activeConnections/${rsKey}.json`);
-								}
-							});
-						}
-					}).catch(logCatch);
+		const activeChannels = await getActiveChannels();
+		activeChannels.forEach(async (activeChannel) => {
+			if (guildID === activeChannel.guildID){
+				const connection = client.voiceConnections.get(guildID);
+				if (connection) {
+					connection.stopPlaying();
+					connection.disconnect();
 				}
-			});
-		}).catch(logCatch);
-		await interaction.createMessage({
-			content: '**Thanks for using classical bot.** ❤️',
-			flags: 64,
+				await deleteActiveChannel(activeChannel.privateKey);
+				const activeConnections = await getActiveConnections();
+				activeConnections.forEach((activeConnection) => {
+					if (activeConnection.channelID === activeChannel.channelID) {
+						deleteActiveConnection(activeConnection.privateKey);
+					}
+				});
+			}
 		});
+		await interaction.createMessage(getEmbed('stop', '**Thanks for using classical bot.** ❤️', client.user.staticAvatarURL));
 	}
 };
