@@ -1,1 +1,0 @@
-{"version":3,"file":"activeConnection.if.d.ts","sourceRoot":"","sources":["../../../../src/client/interfaces/activeConnection.if.ts"],"names":[],"mappings":"AAAA,MAAM,MAAM,gBAAgB,GAAG;IAC9B,SAAS,EAAE,MAAM,CAAC;IAClB,UAAU,EAAE,MAAM,CAAC;IACnB,SAAS,EAAE,MAAM,CAAC;CAClB,EAAE,CAAC"}
