@@ -15,7 +15,7 @@ export default async () => {
 		],
 	}).then((response) => {
 		if (response.formats[0]) {
-			musicUrl = response.formats[0].manifest_url;
+			musicUrl = response.formats[0].url;
 		}
 	}).catch(logCatch);
 	return musicUrl;
