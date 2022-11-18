@@ -1,13 +1,16 @@
 # 7-24-classical-music-bot
 
-My bot for stupid discord badge(It is works now! Just need some improvements but its already really good.)
 
-I recommend to use docker image for running bot if you are not you need ffmpeg and libsodium working properly in target computer.
+Hello! This is my little bot for the stupid discord badge. It streams 7/24 classical music on specified channels. You can run your instance with docker or invite my bot with [this link](https://discord.com/api/oauth2/authorize?client_id=1042168668831879229&permissions=2150629376&scope=bot)
 
-It is also needs python too because I am using youtube-dl if its still not work try to install python.
+If you choose to run your instance, I recommend to use a docker image for this.
 
-Dont forget to make `npm install`!
+For cases that you don't want to use docker, you need FFmpeg and Libsodium working properly on the target computer.
 
-Dont forget to define environment variables!(.env file)
+It also needs Python3 too because I am using youtube-dl if it's still not working try to install python.
 
-Dont forget to compile typescript code with `npx tsc`!
+Don't forget to make `npm install`!
+
+Don't forget to define environment variables! (. env file)
+
+Don't forget to compile typescript code with `npx tsc`!
