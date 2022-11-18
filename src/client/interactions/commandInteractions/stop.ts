@@ -28,6 +28,6 @@ export default async (interaction: CommandInteraction) => {
 				});
 			}
 		}, Promise.resolve());
-		await interaction.createMessage(getEmbed('stop', '**Thanks for using classical bot.** ❤️', client.user.staticAvatarURL));
+		await interaction.createMessage(getEmbed('Stop', '**Thanks for using classical bot.** ❤️', client.user.staticAvatarURL));
 	}
 };
