@@ -69,9 +69,7 @@ export default async (interaction: CommandInteraction) => {
 		}
 	}, Promise.resolve());
 	if (!channelFound) {
-		await interaction.createMessage(getEmbed('Play', '・ **Thanks for using classical bot.** ❤️', client.user.staticAvatarURL)).catch((err) => {
-			console.log('Hata', err);
-		});
+		await interaction.createMessage(getEmbed('Play', '・ **Thanks for using classical bot.** ❤️', client.user.staticAvatarURL)).catch(logCatch);
 		await postActiveChannel(channelID, guildID);
 		await client.joinVoiceChannel(channelID, { selfDeaf: true }).then(async (connection) => {
 			const memberCount = (await client.getChannel(channelID) as VoiceChannel).voiceMembers.size;
