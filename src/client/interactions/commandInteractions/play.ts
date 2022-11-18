@@ -57,7 +57,8 @@ export default async (interaction: CommandInteraction) => {
 	let channelFound = false;
 	// Checking for if the guild cached before.
 	const channels = await getActiveChannels();
-	await Promise.all(channels.map(async (activeChannel) => {
+	await channels.reduce(async (previousActiveChannel, activeChannel) => {
+		await previousActiveChannel;
 		if (activeChannel.guildID === guildID) {
 			if (activeChannel.channelID === channelID) {
 				await interaction.createMessage(getEmbed('Play', '・ **You\'re already using the bot in the same channel.**🤠', client.user.staticAvatarURL));
@@ -66,7 +67,7 @@ export default async (interaction: CommandInteraction) => {
 			}
 			await deleteActiveChannel(activeChannel.privateKey);
 		}
-	}));
+	}, Promise.resolve());
 	if (!channelFound) {
 		await postActiveChannel(channelID, guildID);
 		await client.joinVoiceChannel(channelID, { selfDeaf: true }).then(async (connection) => {

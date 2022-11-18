@@ -11,7 +11,8 @@ export default async (interaction: CommandInteraction) => {
 	if (interaction.member) {
 		const guildID = interaction.member.guild.id;
 		const activeChannels = await getActiveChannels();
-		activeChannels.forEach(async (activeChannel) => {
+		await activeChannels.reduce(async (previousActiveChannel, activeChannel) => {
+			await previousActiveChannel;
 			if (guildID === activeChannel.guildID) {
 				const connection = client.voiceConnections.get(guildID);
 				if (connection) {
@@ -26,7 +27,7 @@ export default async (interaction: CommandInteraction) => {
 					}
 				});
 			}
-		});
+		}, Promise.resolve());
 		await interaction.createMessage(getEmbed('stop', '**Thanks for using classical bot.** ❤️', client.user.staticAvatarURL));
 	}
 };

@@ -7,7 +7,8 @@ export default async () => {
 	const { client } = Client;
 	const commandNames = ['play', 'classical', 'stop'];
 	const commands = await client.getCommands();
-	commandNames.forEach(async (commandName: string) => {
+	commandNames.reduce(async (previousCommandName, commandName: string) => {
+		await previousCommandName;
 		let commandExist = false;
 		commands.forEach((command: ApplicationCommand) => {
 			if (commandName === command.name) {
@@ -22,5 +23,5 @@ export default async () => {
 				await client.createCommand(stop);
 			}
 		}
-	});
+	}, Promise.resolve());
 };

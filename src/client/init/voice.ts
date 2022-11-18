@@ -14,9 +14,11 @@ export default async () => {
 	const threeMinutes = 180000;
 	const thirstyMinutes = 1800000;
 	setInterval(() => {
-		client.voiceConnections.forEach(async (connection: VoiceConnection) => {
+		client.voiceConnections.reduce(async (previousConnection, connection: VoiceConnection) => {
+			await previousConnection;
 			const activeConnections = await getActiveConnections();
-			activeConnections.forEach(async (activeConnection) => {
+			activeConnections.reduce(async (previousActiveConnection, activeConnection) => {
+				await previousActiveConnection;
 				if (Date.now() - thirstyMinutes > activeConnection.timestamp) {
 					const cachedChannel = client.getChannel(activeConnection.channelID) as VoiceChannel;
 					await playVoice(cachedChannel.voiceMembers.size, connection, activeConnection.channelID, false);
@@ -24,8 +26,8 @@ export default async () => {
 					await deleteActiveConnection(activeConnection.privateKey);
 					await postActiveConnections(activeConnection.channelID);
 				}
-			});
-		});
+			}, Promise.resolve());
+		}, Promise.resolve());
 	}, threeMinutes);
 
 	// This is for the cases that bot resets itself.(and it means all cache gone so I need get cache from somewhere.)(and yes it happens a lot.)
