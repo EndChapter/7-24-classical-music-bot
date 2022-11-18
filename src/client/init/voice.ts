@@ -31,7 +31,6 @@ export default async () => {
 	// This is for the cases that bot resets itself.(and it means all cache gone so I need get cache from somewhere.)(and yes it happens a lot.)
 	const activeChannels = await getActiveChannels();
 	activeChannels.forEach((activeChannel) => {
-		// PlayVoice should handled in voicechanneljoin.
 		client.joinVoiceChannel(activeChannel.channelID, { selfDeaf: true }).then(async (connection) => {
 			const memberCount = (await client.getChannel(activeChannel.channelID) as VoiceChannel).voiceMembers.size;
 			playVoice(memberCount, connection, activeChannel.channelID, true);

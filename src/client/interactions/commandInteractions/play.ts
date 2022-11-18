@@ -24,7 +24,7 @@ export default async (interaction: CommandInteraction) => {
 	if (value !== '') {
 		channelID = channelRegex(value);
 		if (channelID === '') {
-			// log and message
+			await interaction.createMessage(getEmbed('Play', '・ **I need a valid voice channel or valid voice channel id for this command.** 🤗', client.user.staticAvatarURL));
 			return;
 		}
 	}
@@ -35,23 +35,27 @@ export default async (interaction: CommandInteraction) => {
 				guildID = interaction.member.guild.id;
 			}
 			else {
-				// log and message
+				await interaction.createMessage(getEmbed(
+					'Play',
+					'・ **You need to specify a voice channel or you need to be in the voice channel.** 😵‍💫',
+					client.user.staticAvatarURL,
+				));
 				return;
 			}
 		}
 		else {
-			// log and message
+			await interaction.createMessage(getEmbed('Play', '・ **You need to specify a voice channel or you need to be in the voice channel.** 😵‍💫', client.user.staticAvatarURL));
 			return;
 		}
 	}
 	else {
-		// log and message
+		await interaction.createMessage(getEmbed('Play', '・ **Unfortunately, You can\'t use bot in dm or groups.** 🤗', client.user.staticAvatarURL));
 		return;
 	}
 
 	const channel = client.getChannel(channelID);
 	if (!(channel instanceof VoiceChannel)) {
-		// log and message
+		await interaction.createMessage(getEmbed('Play', '・ **I need a valid voice channel or valid voice channel id for this command.** 🧐', client.user.staticAvatarURL));
 		return;
 	}
 	let channelFound = false;
