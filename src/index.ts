@@ -4,5 +4,10 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import Client from './client/client';
+import MusicUrl from './client/utils/voice/MusicUrl';
 
-Client.init();
+async function main() {
+	await MusicUrl.init();
+	Client.init();
+}
+main();

@@ -11,7 +11,7 @@ export default class Client {
 
 	// Inspired from https://github.com/Member-Counter/bot Yo respect to your code man this is so perfect. Also I cant steal all code I can just inspire from your client use.
 	static init() {
-		Client._client = new ErisClient(bottok, {
+		const client = new ErisClient(bottok, {
 			allowedMentions: {
 				everyone: false,
 			},
@@ -40,12 +40,14 @@ export default class Client {
 			},
 			seedVoiceConnections: true,
 		});
-		Client.client.once('ready', ready);
-		Client.client.on('interactionCreate', interactionCreate);
-		Client.client.on('voiceChannelJoin', sendConnection);
-		Client.client.on('voiceChannelLeave', sendConnection);
-		Client.client.on('voiceChannelSwitch', sendConnection);
-		Client.client.connect();
+		client.once('ready', ready);
+		client.on('interactionCreate', interactionCreate);
+		client.on('voiceChannelJoin', sendConnection);
+		client.on('voiceChannelLeave', sendConnection);
+		client.on('voiceChannelSwitch', sendConnection);
+		client.connect();
+
+		this._client = client;
 	}
 
 	static get client(): ErisClient {

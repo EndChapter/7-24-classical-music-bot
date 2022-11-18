@@ -18,6 +18,7 @@ module.exports = {
 		'max-statements-per-line': ['error', { max: 2 }],
 		'max-len': ['error', { code: 180 }],
 		'no-console': 'off',
+		'no-underscore-dangle': 'off',
 		'no-empty-function': 'error',
 		'no-floating-decimal': 'error',
 		'no-inline-comments': 'error',

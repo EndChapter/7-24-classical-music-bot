@@ -2,7 +2,7 @@ import type { VoiceConnection } from 'eris';
 import deleteActiveConnection from '../activeConnection/deleteActiveConnection';
 import getActiveConnections from '../activeConnection/getActiveConnections';
 import postActiveConnections from '../activeConnection/postActiveConnections';
-import getMusicUrl from './getMusicUrl';
+import MusicUrl from './MusicUrl';
 
 export default async (memberCount: number, connection: VoiceConnection, channelID: string, justJoined: boolean) => {
 	let activeVoiceChannel = false;
@@ -19,7 +19,7 @@ export default async (memberCount: number, connection: VoiceConnection, channelI
 			await deleteActiveConnection(privateKey);
 		}
 		await postActiveConnections(channelID);
-		const musicUrl = await getMusicUrl();
+		const { musicUrl } = MusicUrl;
 		if (connection.playing) {
 			await connection.stopPlaying();
 		}

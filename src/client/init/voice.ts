@@ -6,11 +6,9 @@ import getActiveConnections from '../utils/activeConnection/getActiveConnections
 import postActiveConnections from '../utils/activeConnection/postActiveConnections';
 import playVoice from '../utils/voice/playVoice';
 
-// Needs revision
 export default async () => {
 	const { client } = Client;
 	// In every 45 minutes. Live link become expired. So I will avoid with that.
-	// TODO: Change link 1 time apply every check.
 	const threeMinutes = 180000;
 	const thirstyMinutes = 1800000;
 	setInterval(() => {
