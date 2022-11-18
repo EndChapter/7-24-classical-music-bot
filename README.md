@@ -1,6 +1,6 @@
 # 7-24-classical-music-bot
 
-My bot for stupid discord badge(It is works now! Just need some improvements but its already really good.)
+Hello! This is my little bot for stupid discord badge. It streams 7/24 classical music in commanded channels. You can run your instance with docker or invite my bot with	
 
 I recommend to use docker image for running bot if you are not you need ffmpeg and libsodium working properly in target computer.
 
