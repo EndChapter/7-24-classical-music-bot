@@ -42,5 +42,6 @@ export default async (interaction: CommandInteraction) => {
 			'**Error. Don\'t worry. I sent a error message about this. It will be fixed soon(Hopefully.)**',
 			client.user.staticAvatarURL,
 		));
+		console.log('ERROR: Command called in dm.');
 	}
 };

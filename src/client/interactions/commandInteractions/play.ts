@@ -14,6 +14,7 @@ export default async (interaction: CommandInteraction) => {
 	let guildID = '';
 	let channelID = '';
 	let value = '';
+	await interaction.createMessage(getEmbed('Play', '**Processing...**', client.user.staticAvatarURL));
 	if (interaction.data) {
 		if (interaction.data.options) {
 			if (interaction.data.options[0]) {
@@ -24,7 +25,11 @@ export default async (interaction: CommandInteraction) => {
 	if (value !== '') {
 		channelID = channelRegex(value);
 		if (channelID === '') {
-			await interaction.createMessage(getEmbed('Play', '・ **I need a valid voice channel or valid voice channel id for this command.** 🤗', client.user.staticAvatarURL));
+			await interaction.editOriginalMessage(getEmbed(
+				'Play',
+				'・ **I need a valid voice channel or valid voice channel id for this command.** 🤗',
+				client.user.staticAvatarURL,
+			));
 			return;
 		}
 	}
@@ -36,7 +41,7 @@ export default async (interaction: CommandInteraction) => {
 					channelID = interaction.member.voiceState.channelID;
 				}
 				else {
-					await interaction.createMessage(getEmbed(
+					await interaction.editOriginalMessage(getEmbed(
 						'Play',
 						'・ **You need to specify a voice channel or you need to be in the voice channel.** 😵‍💫',
 						client.user.staticAvatarURL,
@@ -45,7 +50,7 @@ export default async (interaction: CommandInteraction) => {
 				}
 			}
 			else {
-				await interaction.createMessage(getEmbed(
+				await interaction.editOriginalMessage(getEmbed(
 					'Play',
 					'・ **You need to specify a voice channel or you need to be in the voice channel.** 😵‍💫',
 					client.user.staticAvatarURL,
@@ -55,13 +60,13 @@ export default async (interaction: CommandInteraction) => {
 		}
 	}
 	else {
-		await interaction.createMessage(getEmbed('Play', '・ **Unfortunately, You can\'t use bot in dm or groups.** 🤗', client.user.staticAvatarURL));
+		await interaction.editOriginalMessage(getEmbed('Play', '・ **Unfortunately, You can\'t use bot in dm or groups.** 🤗', client.user.staticAvatarURL));
 		return;
 	}
 
 	const channel = client.getChannel(channelID);
 	if (!(channel instanceof VoiceChannel)) {
-		await interaction.createMessage(getEmbed('Play', '・ **I need a valid voice channel or valid voice channel id for this command.** 🧐', client.user.staticAvatarURL));
+		await interaction.editOriginalMessage(getEmbed('Play', '・ **I need a valid voice channel or valid voice channel id for this command.** 🧐', client.user.staticAvatarURL));
 		return;
 	}
 	// Checking for if the guild cached before.
@@ -71,7 +76,7 @@ export default async (interaction: CommandInteraction) => {
 		await previousActiveChannel;
 		if (activeChannel.guildID === guildID) {
 			if (activeChannel.channelID === channelID) {
-				await interaction.createMessage(getEmbed('Play', '・ **You\'re already using the bot in the same channel.**🤠', client.user.staticAvatarURL));
+				await interaction.editOriginalMessage(getEmbed('Play', '・ **You\'re already using the bot in the same channel.**🤠', client.user.staticAvatarURL));
 				channelFound = true;
 				return;
 			}
@@ -79,11 +84,12 @@ export default async (interaction: CommandInteraction) => {
 		}
 	}, Promise.resolve());
 	if (!channelFound) {
-		await interaction.createMessage(getEmbed('Play', '・ **Thanks for using classical bot.** ❤️', client.user.staticAvatarURL)).catch(logCatch);
+		await interaction.editOriginalMessage(getEmbed('Play', '・ **Thanks for using classical bot.** ❤️', client.user.staticAvatarURL)).catch(logCatch);
 		await postActiveChannel(channelID, guildID);
 		await client.joinVoiceChannel(channelID, { selfDeaf: true }).then(async (connection) => {
 			const realVoiceMembersCount = (await client.getChannel(channelID) as VoiceChannel).voiceMembers.filter((i) => i.id !== client.user.id).length;
 			await playVoice(realVoiceMembersCount, connection, channelID);
+			await interaction.editOriginalMessage(getEmbed('Play', '・ **Thanks for using classical bot.** ❤️', client.user.staticAvatarURL)).catch(logCatch);
 		}).catch(logCatch);
 	}
 };
