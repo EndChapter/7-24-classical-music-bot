@@ -28,11 +28,11 @@ export default async (interaction: CommandInteraction) => {
 			return;
 		}
 	}
-	else if (interaction.member) {
+	if (interaction.member) {
+		guildID = interaction.member.guild.id;
 		if (interaction.member.voiceState !== undefined) {
 			if (interaction.member.voiceState.channelID !== null) {
 				channelID = interaction.member.voiceState.channelID;
-				guildID = interaction.member.guild.id;
 			}
 			else {
 				await interaction.createMessage(getEmbed(
@@ -58,8 +58,8 @@ export default async (interaction: CommandInteraction) => {
 		await interaction.createMessage(getEmbed('Play', '・ **I need a valid voice channel or valid voice channel id for this command.** 🧐', client.user.staticAvatarURL));
 		return;
 	}
-	let channelFound = false;
 	// Checking for if the guild cached before.
+	let channelFound = false;
 	const channels = await getActiveChannels();
 	await channels.reduce(async (previousActiveChannel, activeChannel) => {
 		await previousActiveChannel;
