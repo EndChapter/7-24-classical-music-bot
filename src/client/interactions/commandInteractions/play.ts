@@ -84,7 +84,6 @@ export default async (interaction: CommandInteraction) => {
 		}
 	}, Promise.resolve());
 	if (!channelFound) {
-		await interaction.editOriginalMessage(getEmbed('Play', '・ **Thanks for using classical bot.** ❤️', client.user.staticAvatarURL)).catch(logCatch);
 		await postActiveChannel(channelID, guildID);
 		await client.joinVoiceChannel(channelID, { selfDeaf: true }).then(async (connection) => {
 			const realVoiceMembersCount = (await client.getChannel(channelID) as VoiceChannel).voiceMembers.filter((i) => i.id !== client.user.id).length;
