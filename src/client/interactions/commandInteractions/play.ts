@@ -12,7 +12,7 @@ import playVoice from '../../utils/voice/playVoice';
 export default async (interaction: CommandInteraction) => {
 	const { client } = Client;
 	let guildID = '';
-	let channelID: string;
+	let channelID = '';
 	let value = '';
 	if (interaction.data) {
 		if (interaction.data.options) {
@@ -30,9 +30,19 @@ export default async (interaction: CommandInteraction) => {
 	}
 	if (interaction.member) {
 		guildID = interaction.member.guild.id;
-		if (interaction.member.voiceState !== undefined) {
-			if (interaction.member.voiceState.channelID !== null) {
-				channelID = interaction.member.voiceState.channelID;
+		if (value === '') {
+			if (interaction.member.voiceState !== undefined) {
+				if (interaction.member.voiceState.channelID !== null) {
+					channelID = interaction.member.voiceState.channelID;
+				}
+				else {
+					await interaction.createMessage(getEmbed(
+						'Play',
+						'・ **You need to specify a voice channel or you need to be in the voice channel.** 😵‍💫',
+						client.user.staticAvatarURL,
+					));
+					return;
+				}
 			}
 			else {
 				await interaction.createMessage(getEmbed(
@@ -42,10 +52,6 @@ export default async (interaction: CommandInteraction) => {
 				));
 				return;
 			}
-		}
-		else {
-			await interaction.createMessage(getEmbed('Play', '・ **You need to specify a voice channel or you need to be in the voice channel.** 😵‍💫', client.user.staticAvatarURL));
-			return;
 		}
 	}
 	else {
