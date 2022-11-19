@@ -4,7 +4,7 @@ import getActiveConnections from '../activeConnection/getActiveConnections';
 import postActiveConnections from '../activeConnection/postActiveConnections';
 import MusicUrl from './MusicUrl';
 
-export default async (memberCount: number, connection: VoiceConnection, channelID: string, justJoined: boolean) => {
+export default async (memberCount: number, connection: VoiceConnection, channelID: string) => {
 	let activeVoiceChannel = false;
 	let privateKey = '';
 	const cachedChannels = await getActiveConnections();
@@ -14,7 +14,7 @@ export default async (memberCount: number, connection: VoiceConnection, channelI
 			privateKey = activeConnection.privateKey;
 		}
 	});
-	if (memberCount > 1 || (justJoined && memberCount === 1)) {
+	if (memberCount > 0) {
 		if (activeVoiceChannel) {
 			await deleteActiveConnection(privateKey);
 		}

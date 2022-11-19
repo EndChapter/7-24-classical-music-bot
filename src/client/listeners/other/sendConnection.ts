@@ -6,7 +6,8 @@ export default async (_member: Member, channel: VoiceChannel) => {
 	const { client } = Client;
 	const connection = await client.voiceConnections.find((connect: VoiceConnection) => connect.channelID === channel.id);
 	if (connection) {
-		await playVoice(channel.voiceMembers.size, connection, channel.id, false);
+		const realVoiceMembersCount = channel.voiceMembers.filter((i) => i.id !== client.user.id).length;
+		await playVoice(realVoiceMembersCount, connection, channel.id);
 	}
 };
 

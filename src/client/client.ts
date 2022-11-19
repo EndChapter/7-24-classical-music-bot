@@ -45,6 +45,7 @@ export default class Client {
 		client.on('voiceChannelJoin', sendConnection);
 		client.on('voiceChannelLeave', sendConnection);
 		client.on('voiceChannelSwitch', sendConnection);
+		client.on('debug', (message: string) => { console.log(message); })
 		client.connect();
 
 		this._client = client;

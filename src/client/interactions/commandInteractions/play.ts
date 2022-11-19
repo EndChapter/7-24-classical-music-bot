@@ -76,8 +76,8 @@ export default async (interaction: CommandInteraction) => {
 		await interaction.createMessage(getEmbed('Play', '・ **Thanks for using classical bot.** ❤️', client.user.staticAvatarURL)).catch(logCatch);
 		await postActiveChannel(channelID, guildID);
 		await client.joinVoiceChannel(channelID, { selfDeaf: true }).then(async (connection) => {
-			const memberCount = (await client.getChannel(channelID) as VoiceChannel).voiceMembers.size;
-			await playVoice(memberCount, connection, channelID, true);
+			const realVoiceMembersCount = (await client.getChannel(channelID) as VoiceChannel).voiceMembers.filter((i) => i.id !== client.user.id).length;
+			await playVoice(realVoiceMembersCount, connection, channelID);
 		}).catch(logCatch);
 	}
 };
