@@ -13,5 +13,4 @@ export default (title: string, description: string, icon_url: string) => ({
 			icon_url,
 		},
 	}],
-	flags: 64,
 });
