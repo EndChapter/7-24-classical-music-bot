@@ -1,4 +1,6 @@
 import type { VoiceChannel, VoiceConnection } from 'eris';
+import axios from 'axios';
+import { databaseURL } from '../../../config';
 import Client from '../client';
 import getActiveChannels from '../utils/activeChannel/getActiveChannels';
 import deleteActiveConnection from '../utils/activeConnection/deleteActiveConnection';
@@ -33,10 +35,16 @@ export default async () => {
 	const activeChannels = await getActiveChannels();
 	// Deleting all active connections for clean database. playVoice handles and posts all active connections again.
 	await deleteAllActiveConnections();
-	activeChannels.forEach((activeChannel) => {
-		client.joinVoiceChannel(activeChannel.channelID, { selfDeaf: true }).then(async (connection) => {
-			const realVoiceMembersCount = (await client.getChannel(activeChannel.channelID) as VoiceChannel).voiceMembers.filter((i) => i.id !== client.user.id).length;
-			playVoice(realVoiceMembersCount, connection, activeChannel.channelID);
-		});
+	await activeChannels.forEach(async (activeChannel) => {
+		const channel = await client.getChannel(activeChannel.channelID);
+		if (channel && channel.type === 2) {
+			channel.join({ selfDeaf: true }).then(async (connection: VoiceConnection) => {
+				const realVoiceMembersCount = (await client.getChannel(activeChannel.channelID) as VoiceChannel).voiceMembers.filter((i) => i.id !== client.user.id).length;
+				playVoice(realVoiceMembersCount, connection, activeChannel.channelID);
+			});
+		}
+		else {
+			axios.delete(`${databaseURL}/channels/${activeChannel.privateKey}`);
+		}
 	});
 };
