@@ -1,7 +1,7 @@
 # 7-24-classical-music-bot
 
 
-Hello! This is my little bot for the stupid discord badge. It streams 7/24 classical music on specified channels. You can run your instance with docker or invite my bot with [this link](https://discord.com/api/oauth2/authorize?client_id=1042168668831879229&permissions=2150629376&scope=bot)
+Hello! This is my little bot for the stupid discord badge. It streams 7/24 classical music on specified channels. You can run your instance with docker or invite my bot with [this link](https://discord.com/api/oauth2/authorize?client_id=1042168668831879229&permissions=2150629376&scope=bot)(Offline for a week srry :C )
 
 If you choose to run your instance, I recommend to use a docker image for this.
 
