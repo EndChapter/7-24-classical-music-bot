@@ -37,11 +37,16 @@ export default async () => {
 	await deleteAllActiveConnections();
 	await activeChannels.forEach(async (activeChannel) => {
 		const channel = await client.getChannel(activeChannel.channelID);
-		if (channel && channel.type === 2) {
-			channel.join({ selfDeaf: true }).then(async (connection: VoiceConnection) => {
-				const realVoiceMembersCount = (await client.getChannel(activeChannel.channelID) as VoiceChannel).voiceMembers.filter((i) => i.id !== client.user.id).length;
-				playVoice(realVoiceMembersCount, connection, activeChannel.channelID);
-			});
+		if (channel) {
+			if (channel.type === 2) {
+				channel.join({ selfDeaf: true }).then(async (connection: VoiceConnection) => {
+					const realVoiceMembersCount = (await client.getChannel(activeChannel.channelID) as VoiceChannel).voiceMembers.filter((i) => i.id !== client.user.id).length;
+					playVoice(realVoiceMembersCount, connection, activeChannel.channelID);
+				});
+			}
+			else {
+				axios.delete(`${databaseURL}/channels/${activeChannel.privateKey}`);
+			}
 		}
 		else {
 			axios.delete(`${databaseURL}/channels/${activeChannel.privateKey}`);
